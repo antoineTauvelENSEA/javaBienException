@@ -1,0 +1,159 @@
+package javaBien;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Locale;
+
+public class Maze {
+    private final int width;
+    private final int height;
+    private char mazeArray[][];
+
+    public Maze(int width, int height, String filePath) {
+        this.width = width;
+        this.height = height;
+        this.mazeArray = new char[height][width];
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            for (int i=0;i<height;i++)
+            {String line = br.readLine();
+                mazeArray[i]=line.toUpperCase(Locale.ROOT).toCharArray();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void displayInConsole(){
+        for (char[] line : mazeArray){
+            for (char c : line){
+                System.out.print(c);
+            }
+            System.out.println("");
+        }
+
+    }
+}
+
+
+package javaBien;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Locale;
+import java.util.Random;
+
+public class Maze extends JPanel {
+    private final int width;
+    private final int height;
+    private char mazeArray[][];
+    private BufferedImage[] grass;
+    private BufferedImage[] rock;
+    private BufferedImage[] tree;
+    private BufferedImage trap;
+
+    public Maze(int width, int height, String filePath) {
+        super();
+        this.width = width;
+        this.height = height;
+        this.mazeArray = new char[height][width];
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            for (int i=0;i<height;i++)
+            {String line = br.readLine();
+                mazeArray[i]=line.toUpperCase(Locale.ROOT).toCharArray();
+            }
+
+            grass = new BufferedImage[4];
+            tree = new BufferedImage[4];
+            rock = new BufferedImage[2];
+
+            for (int i=0;i<grass.length;i++){
+                grass[i] = ImageIO.read(new File("./tiles/grass"+i+".png"));
+                tree[i] = ImageIO.read(new File("./tiles/tree"+i+".png"));
+            }
+            for (int i=0;i<rock.length;i++){
+                rock[i] = ImageIO.read(new File("./tiles/rock"+i+".png"));
+            }
+            trap = ImageIO.read(new File("./tiles/trap.png"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        }
+  /*      rock = new ImageIcon[2];
+        for (int i=0;i<rock.length;i++){
+            rock[i]=new ImageIcon("./tiles/rock"+i+".png");
+        }
+        trap = new ImageIcon("./tiles/trap.png");*/
+
+
+    public void displayInConsole(){
+        for (char[] line : mazeArray){
+            for (char c : line){
+                System.out.print(c);
+            }
+            System.out.println("");
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Random random= new Random();
+        int x = 0;
+        int y = 0;
+        for (char[] line : mazeArray){
+            for (char c : line){
+                switch(c){
+                    case ' ' :
+                        g.drawImage(grass[random.nextInt(4)],x,y,null);
+                        break;
+                    case 'T' :
+                        g.drawImage(tree[random.nextInt(4)],x,y,null);
+                        break;
+                    case 'H' :
+                        g.drawImage(trap,x,y,null);
+                        break;
+                    case 'R' :
+                        g.drawImage(rock[random.nextInt(2)],x,y,null);
+                        break;
+                }
+                x+=64;
+            }
+            y+=64;
+            x=0;
+        }
+    }
+}
+
+
+package javaBien;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class GraphicalMain extends JFrame {
+    Maze level;
+
+    public GraphicalMain(Maze level) throws HeadlessException {
+        super("Java bien");
+        this.level = level;
+        this.setSize(64*25,64*6);
+        this.add(level);
+        this.setVisible(true);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
+
+    public static void main(String[] args){
+        Maze level1 = new Maze(25,6,"./data/level1.txt");
+        GraphicalMain graphicalMain = new GraphicalMain(level1);
+    }
+}
